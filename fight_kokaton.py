@@ -142,7 +142,7 @@ class Score:
         self.score = 0
         self.img = self.fonto.render("スコア:" + str(self.score), 0, (0, 0, 255))
         self.x, self.y = 100, 50
-
+ 
     def update(self, screen: pg.Surface):
         self.img = self.fonto.render("スコア:" + str(self.score), 0, (0, 0, 255))
         screen.blit(self.img, [self.x, self.y])
@@ -169,7 +169,7 @@ def main():
     bird = Bird((900, 400))
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     explosions = []
-    beam = None
+    beams = []
     score = Score()
     clock = pg.time.Clock()
     tmr = 0
@@ -178,10 +178,12 @@ def main():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                beam = Beam(bird)
+                beams.append(Beam(bird))
         screen.blit(bg_img, [0, 0])
         
         for i, bomb in enumerate(bombs):
+            if bomb is None:
+                continue
             if bird is not None:
                 if bird.rct.colliderect(bomb.rct):
                     # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
@@ -193,15 +195,20 @@ def main():
                     time.sleep(5)
                     return
             
-                if beam is not None:
+                for j, beam in enumerate(beams):
+                    if beam is None:
+                        continue
                     if beam.rct.colliderect(bomb.rct):
                         explosions.append(Explosion(bomb))
-                        beam = None
+                        beams[j] = None
                         bomb = None
                         bird.change_img(6, screen)
                         score.score += 1
                         pg.display.update
+                        break
+                beams = [beam for beam in beams if beam is not None]
                 bombs[i] = bomb
+                
         
         bombs = [bomb for bomb in bombs if bomb is not None]
         explosions = [ex for ex in explosions if ex.life > 0]
@@ -211,8 +218,10 @@ def main():
 
         for bomb in bombs:
             bomb.update(screen)
-        if beam is not None:
+        for i, beam in enumerate(beams):
             beam.update(screen)
+            if check_bound(beam.rct) != (True, True):
+                beams.pop(i)
         score.update(screen)
         for ex in explosions:
             ex.update(screen)
