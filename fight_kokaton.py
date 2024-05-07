@@ -182,9 +182,9 @@ def main():
         screen.blit(bg_img, [0, 0])
         
         for i, bomb in enumerate(bombs):
-            if bomb is None:
+            if bomb == None:
                 continue
-            if bird is not None:
+            if bird != None:
                 if bird.rct.colliderect(bomb.rct):
                     # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                     bird.change_img(8, screen)
@@ -196,7 +196,7 @@ def main():
                     return
             
                 for j, beam in enumerate(beams):
-                    if beam is None:
+                    if beam == None:
                         continue
                     if beam.rct.colliderect(bomb.rct):
                         explosions.append(Explosion(bomb))
@@ -206,11 +206,11 @@ def main():
                         score.score += 1
                         pg.display.update
                         break
-                beams = [beam for beam in beams if beam is not None]
+                beams = [beam for beam in beams if beam != None]
                 bombs[i] = bomb
                 
         
-        bombs = [bomb for bomb in bombs if bomb is not None]
+        bombs = [bomb for bomb in bombs if bomb != None]
         explosions = [ex for ex in explosions if ex.life > 0]
             
         key_lst = pg.key.get_pressed()
